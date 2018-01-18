@@ -5,6 +5,7 @@ import socket
 import sys
 import time
 import traceback
+import uuid
 
 from threading import Timer
 
@@ -20,6 +21,7 @@ else:
 
 instances = []  # For keeping track of running class instances
 
+GUID = uuid.uuid4() # Create a unique channel id
 
 # Called when application exit imminent (main thread ended / got kill signal)
 @atexit.register
@@ -201,7 +203,10 @@ class SplunkHandler(logging.Handler):
                 r = self.session.post(
                     url,
                     data=payload,
-                    headers={'Authorization': "Splunk %s" % self.token},
+                    headers={
+                        'Authorization': "Splunk %s" % self.token,
+                        'X-Splunk-Request-Channel': "%s" % GUID
+                    },
                     verify=self.verify,
                     timeout=self.timeout,
                 )
